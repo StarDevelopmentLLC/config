@@ -8,8 +8,16 @@ import java.util.Set;
 
 public interface Section {
     Set<String> getKeys(boolean deep);
+    
+    default Set<String> getKeys() {
+        return getKeys(false);
+    }
 
     Map<String, Object> getValues(boolean deep);
+    
+    default Map<String, Object> getValues() {
+        return getValues(false);
+    }
 
     boolean contains(String path);
 
@@ -100,8 +108,16 @@ public interface Section {
     <T extends ConfigSerializable> T getSerializable(String path, Class<T> clazz, T def);
 
     Section getConfigurationSection(String path);
+    
+    default Section getSection(String path) {
+        return getConfigurationSection(path);
+    }
 
     boolean isConfigurationSection(String path);
+    
+    default boolean isSection(String path) {
+        return isConfigurationSection(path);
+    }
 
     Section getDefaultSection();
 
