@@ -1,0 +1,39 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group 'com.github.StarDevelopmentLLC'
+version '0.1.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.yaml:snakeyaml:2.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.compileJava.dependsOn(clean)
+tasks.build.finalizedBy(publishToMavenLocal)
