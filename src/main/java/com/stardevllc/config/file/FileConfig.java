@@ -21,7 +21,13 @@ public abstract class FileConfig extends MemoryConfig {
     }
     
     public void save(File file) throws IOException {
-        Files.createDirectories(file.toPath());
+        if (!Files.exists(file.toPath().getParent())) {
+            Files.createDirectories(file.toPath().getParent());
+        }
+        
+        if (!file.exists()) {
+            file.createNewFile();
+        }
 
         String data = saveToString();
 
