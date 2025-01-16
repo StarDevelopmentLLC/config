@@ -134,4 +134,11 @@ public interface Section {
     void setInlineComments(String path, List<String> comments);
 
     void setInlineComments(String path, String... comments);
+
+    default void addDefault(String path, Object value, String... comments) {
+        if (!contains(path)) {
+            set(path, value);
+            setComments(path, comments);
+        }
+    }
 }
