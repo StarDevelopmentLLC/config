@@ -26,33 +26,34 @@ public class YamlConfig extends FileConfig {
     private final YamlConstructor constructor;
     private final YamlRepresenter representer;
     private final Yaml yaml;
-
-    public YamlConfig() {
+    
+    public YamlConfig(File file) {
+        super(file);
         yamlDumperOptions = new DumperOptions();
         yamlDumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         yamlLoaderOptions = new LoaderOptions();
         yamlLoaderOptions.setMaxAliasesForCollections(Integer.MAX_VALUE);
-        yamlLoaderOptions.setCodePointLimit(Integer.MAX_VALUE); 
+        yamlLoaderOptions.setCodePointLimit(Integer.MAX_VALUE);
         yamlLoaderOptions.setNestingDepthLimit(100);
-
+        
         constructor = new YamlConstructor(yamlLoaderOptions);
         representer = new YamlRepresenter(yamlDumperOptions);
         representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-
+        
         yaml = new Yaml(constructor, representer, yamlDumperOptions, yamlLoaderOptions);
     }
-
+    
     @Override
-    public String saveToString() {
+    protected String saveToString() {
         yamlDumperOptions.setIndent(options().indent());
         yamlDumperOptions.setWidth(options().width());
         yamlDumperOptions.setProcessComments(options().parseComments());
-
+        
         MappingNode node = toNodeTree(this);
-
+        
         node.setBlockComments(getCommentLines(saveHeader(options().getHeader()), CommentType.BLOCK));
         node.setEndComments(getCommentLines(options().getFooter(), CommentType.BLOCK));
-
+        
         StringWriter writer = new StringWriter();
         if (node.getBlockComments().isEmpty() && node.getEndComments().isEmpty() && node.getValue().isEmpty()) {
             writer.write("");
@@ -64,11 +65,11 @@ public class YamlConfig extends FileConfig {
         }
         return writer.toString();
     }
-
+    
     @Override
-    public void loadFromString(String contents) throws InvalidConfigException {
+    protected void loadFromString(String contents) throws InvalidConfigException {
         yamlLoaderOptions.setProcessComments(options().parseComments());
-
+        
         MappingNode node;
         try (Reader reader = new UnicodeReader(new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)))) {
             Node rawNode = yaml.compose(reader);
@@ -80,9 +81,9 @@ public class YamlConfig extends FileConfig {
         } catch (YAMLException | IOException | ClassCastException e) {
             throw new InvalidConfigException(e);
         }
-
+        
         this.map.clear();
-
+        
         if (node != null) {
             adjustNodeComments(node);
             options().setHeader(loadHeader(getCommentLines(node.getBlockComments())));
@@ -109,24 +110,24 @@ public class YamlConfig extends FileConfig {
             }
         }
     }
-
+    
     private void fromNodeTree(MappingNode input, Section section) {
         constructor.flattenMapping(input);
         for (NodeTuple nodeTuple : input.getValue()) {
             Node key = nodeTuple.getKeyNode();
             String keyString = String.valueOf(constructor.construct(key));
             Node value = nodeTuple.getValueNode();
-
+            
             while (value instanceof AnchorNode) {
                 value = ((AnchorNode) value).getRealNode();
             }
-
+            
             if (value instanceof MappingNode && !hasSerializedTypeKey((MappingNode) value)) {
                 fromNodeTree((MappingNode) value, section.createSection(keyString));
             } else {
                 section.set(keyString, constructor.construct(value));
             }
-
+            
             section.setComments(keyString, getCommentLines(key.getBlockComments()));
             if (value instanceof MappingNode || value instanceof SequenceNode) {
                 section.setInlineComments(keyString, getCommentLines(key.getInLineComments()));
@@ -135,7 +136,7 @@ public class YamlConfig extends FileConfig {
             }
         }
     }
-
+    
     private boolean hasSerializedTypeKey(MappingNode node) {
         for (NodeTuple nodeTuple : node.getValue()) {
             Node keyNode = nodeTuple.getKeyNode();
@@ -149,7 +150,7 @@ public class YamlConfig extends FileConfig {
         }
         return false;
     }
-
+    
     private MappingNode toNodeTree(Section section) {
         List<NodeTuple> nodeTuples = new ArrayList<>();
         for (Map.Entry<String, Object> entry : section.getValues(false).entrySet()) {
@@ -166,13 +167,13 @@ public class YamlConfig extends FileConfig {
             } else {
                 value.setInLineComments(getCommentLines(section.getInlineComments(entry.getKey()), CommentType.IN_LINE));
             }
-
+            
             nodeTuples.add(new NodeTuple(key, value));
         }
-
+        
         return new MappingNode(Tag.MAP, nodeTuples, DumperOptions.FlowStyle.BLOCK);
     }
-
+    
     private List<String> getCommentLines(List<CommentLine> comments) {
         List<String> lines = new ArrayList<>();
         if (comments != null) {
@@ -188,7 +189,7 @@ public class YamlConfig extends FileConfig {
         }
         return lines;
     }
-
+    
     private List<CommentLine> getCommentLines(List<String> comments, CommentType commentType) {
         List<CommentLine> lines = new ArrayList<>();
         for (String comment : comments) {
@@ -205,98 +206,80 @@ public class YamlConfig extends FileConfig {
     
     private List<String> loadHeader(List<String> header) {
         LinkedList<String> list = new LinkedList<>(header);
-
+        
         if (!list.isEmpty()) {
             list.removeLast();
         }
-
+        
         while (!list.isEmpty() && list.peek() == null) {
             list.remove();
         }
-
+        
         return list;
     }
     
     private List<String> saveHeader(List<String> header) {
         LinkedList<String> list = new LinkedList<>(header);
-
+        
         if (!list.isEmpty()) {
             list.add(null);
         }
-
+        
         return list;
     }
-
+    
     @Override
     public Options options() {
         if (options == null) {
             options = new Options(this);
         }
-
+        
         return (Options) options;
     }
     
     public static YamlConfig loadConfiguration(File file) {
-        YamlConfig config = new YamlConfig();
-
-        try {
-            config.load(file);
-        } catch (Exception ex) {
-            
-        }
-
+        YamlConfig config = new YamlConfig(file);
+        config.load();
         return config;
     }
     
-    public static YamlConfig loadConfiguration(Reader reader) {
-        YamlConfig config = new YamlConfig();
-
-        try {
-            config.load(reader);
-        } catch (Exception ex) {
-            
-        } 
-
-        return config;
-    }
-
     public static class Options extends FileConfig.Options {
         private int indent = 2;
         private int width = 80;
-    
+        
         protected Options(YamlConfig configuration) {
             super(configuration);
         }
-    
+        
         @Override
         public YamlConfig configuration() {
             return (YamlConfig) super.configuration();
         }
-    
+        
         @Override
         public Options copyDefaults(boolean value) {
             super.copyDefaults(value);
             return this;
         }
-    
+        
         @Override
         public Options pathSeparator(char value) {
             super.pathSeparator(value);
             return this;
         }
-    
+        
         @Override
         public Options setHeader(List<String> value) {
             super.setHeader(value);
             return this;
         }
-    
+        
         @Override
         public Options setFooter(List<String> value) {
             super.setFooter(value);
             return this;
         }
-    
+        
         @Override
         public Options parseComments(boolean value) {
             super.parseComments(value);
