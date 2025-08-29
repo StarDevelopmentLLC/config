@@ -3,9 +3,6 @@ package com.stardevllc.config;
 import java.util.Map;
 
 public interface Config extends Section {
-    @Override
-    void addDefault(String path, Object value);
-    
     void addDefaults(Map<String, Object> defaults);
     
     void addDefaults(Config defaults);
@@ -18,7 +15,7 @@ public interface Config extends Section {
 
     class Options {
         private char pathSeparator = '.';
-        private boolean copyDefaults = false;
+        private boolean copyDefaults;
         private final Config configuration;
     
         protected Options(Config configuration) {

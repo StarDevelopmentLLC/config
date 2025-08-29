@@ -75,7 +75,7 @@ public class MemorySection implements Section {
 
     @Override
     public boolean contains(String path, boolean ignoreDefault) {
-        return ((ignoreDefault) ? get(path, null) : get(path)) != null;
+        return (ignoreDefault ? get(path, null) : get(path)) != null;
     }
 
     @Override
@@ -214,7 +214,7 @@ public class MemorySection implements Section {
         String key = path.substring(i2);
         if (section == this) {
             SectionPathData result = map.get(key);
-            return (result == null) ? def : result.getData();
+            return result == null ? def : result.getData();
         }
         return section.get(key, def);
     }
@@ -275,7 +275,7 @@ public class MemorySection implements Section {
     @Override
     public String getString(String path, String def) {
         Object val = get(path, def);
-        return (val != null) ? val.toString() : def;
+        return val != null ? val.toString() : def;
     }
 
     @Override
@@ -287,13 +287,13 @@ public class MemorySection implements Section {
     @Override
     public int getInt(String path) {
         Object def = getDefault(path);
-        return getInt(path, (def instanceof Number) ? toInt(def) : 0);
+        return getInt(path, def instanceof Number ? toInt(def) : 0);
     }
 
     @Override
     public int getInt(String path, int def) {
         Object val = get(path, def);
-        return (val instanceof Number) ? toInt(val) : def;
+        return val instanceof Number ? toInt(val) : def;
     }
 
     @Override
@@ -305,13 +305,13 @@ public class MemorySection implements Section {
     @Override
     public boolean getBoolean(String path) {
         Object def = getDefault(path);
-        return getBoolean(path, (def instanceof Boolean) ? (Boolean) def : false);
+        return getBoolean(path, def instanceof Boolean ? (Boolean) def : false);
     }
 
     @Override
     public boolean getBoolean(String path, boolean def) {
         Object val = get(path, def);
-        return (val instanceof Boolean) ? (Boolean) val : def;
+        return val instanceof Boolean ? (Boolean) val : def;
     }
 
     @Override
@@ -323,13 +323,13 @@ public class MemorySection implements Section {
     @Override
     public double getDouble(String path) {
         Object def = getDefault(path);
-        return getDouble(path, (def instanceof Number) ? toDouble(def) : 0);
+        return getDouble(path, def instanceof Number ? toDouble(def) : 0);
     }
 
     @Override
     public double getDouble(String path, double def) {
         Object val = get(path, def);
-        return (val instanceof Number) ? toDouble(val) : def;
+        return val instanceof Number ? toDouble(val) : def;
     }
 
     @Override
@@ -341,13 +341,13 @@ public class MemorySection implements Section {
     @Override
     public long getLong(String path) {
         Object def = getDefault(path);
-        return getLong(path, (def instanceof Number) ? toLong(def) : 0);
+        return getLong(path, def instanceof Number ? toLong(def) : 0);
     }
 
     @Override
     public long getLong(String path, long def) {
         Object val = get(path, def);
-        return (val instanceof Number) ? toLong(val) : def;
+        return val instanceof Number ? toLong(val) : def;
     }
 
     @Override
@@ -360,13 +360,13 @@ public class MemorySection implements Section {
     @Override
     public List<?> getList(String path) {
         Object def = getDefault(path);
-        return getList(path, (def instanceof List) ? (List<?>) def : null);
+        return getList(path, def instanceof List ? (List<?>) def : null);
     }
 
     @Override
     public List<?> getList(String path, List<?> def) {
         Object val = get(path, def);
-        return (List<?>) ((val instanceof List) ? val : def);
+        return (List<?>) (val instanceof List ? val : def);
     }
 
     @Override
@@ -386,7 +386,7 @@ public class MemorySection implements Section {
         List<String> result = new ArrayList<>();
 
         for (Object object : list) {
-            if ((object instanceof String) || (isPrimitiveWrapper(object))) {
+            if (object instanceof String || isPrimitiveWrapper(object)) {
                 result.add(String.valueOf(object));
             }
         }
@@ -633,13 +633,13 @@ public class MemorySection implements Section {
     @Override
     public <T> T getObject(String path, Class<T> clazz) {
         Object def = getDefault(path);
-        return getObject(path, clazz, (clazz.isInstance(def)) ? clazz.cast(def) : null);
+        return getObject(path, clazz, clazz.isInstance(def) ? clazz.cast(def) : null);
     }
 
     @Override
     public <T> T getObject(String path, Class<T> clazz, T def) {
         Object val = get(path, def);
-        return (clazz.isInstance(val)) ? clazz.cast(val) : def;
+        return clazz.isInstance(val) ? clazz.cast(val) : def;
     }
 
     @Override
@@ -656,11 +656,11 @@ public class MemorySection implements Section {
     public Section getConfigurationSection(String path) {
         Object val = get(path, null);
         if (val != null) {
-            return (val instanceof Section) ? (Section) val : null;
+            return val instanceof Section ? (Section) val : null;
         }
 
         val = get(path, getDefault(path));
-        return (val instanceof Section) ? createSection(path) : null;
+        return val instanceof Section ? createSection(path) : null;
     }
 
     @Override
@@ -679,7 +679,7 @@ public class MemorySection implements Section {
     protected Object getDefault(String path) {
         Config root = getRoot();
         Config defaults = root == null ? null : root.getDefaults();
-        return (defaults == null) ? null : defaults.get(createPath(this, path));
+        return defaults == null ? null : defaults.get(createPath(this, path));
     }
 
     protected void mapChildrenKeys(Set<String> output, Section section, boolean deep) {
@@ -688,8 +688,8 @@ public class MemorySection implements Section {
             for (Map.Entry<String, SectionPathData> entry : sec.map.entrySet()) {
                 output.add(createPath(section, entry.getKey(), this));
 
-                if ((deep) && (entry.getValue().getData() instanceof Section subsection)) {
-                    mapChildrenKeys(output, subsection, deep);
+                if (deep && entry.getValue().getData() instanceof Section subsection) {
+                    mapChildrenKeys(output, subsection, true);
                 }
             }
         } else {
@@ -711,7 +711,7 @@ public class MemorySection implements Section {
 
                 if (entry.getValue().getData() instanceof Section) {
                     if (deep) {
-                        mapChildrenValues(output, (Section) entry.getValue().getData(), deep);
+                        mapChildrenValues(output, (Section) entry.getValue().getData(), true);
                     }
                 }
             }
@@ -724,8 +724,9 @@ public class MemorySection implements Section {
         }
     }
 
+    @SuppressWarnings("ConstantValue")
     public static String createPath(Section section, String key) {
-        return createPath(section, key, (section == null) ? null : section.getRoot());
+        return createPath(section, key, section == null ? null : section.getRoot());
     }
 
     public static String createPath(Section section, String key, Section relativeTo) {
@@ -736,14 +737,14 @@ public class MemorySection implements Section {
         char separator = root.options().pathSeparator();
 
         StringBuilder builder = new StringBuilder();
-        for (Section parent = section; (parent != null) && (parent != relativeTo); parent = parent.getParent()) {
+        for (Section parent = section; parent != null && parent != relativeTo; parent = parent.getParent()) {
             if (!builder.isEmpty()) {
                 builder.insert(0, separator);
             }
             builder.insert(0, parent.getName());
         }
 
-        if ((key != null) && (!key.isEmpty())) {
+        if (key != null && !key.isEmpty()) {
             if (!builder.isEmpty()) {
                 builder.append(separator);
             }

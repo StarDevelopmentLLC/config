@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.stardevllc'
-version '0.1.4'
+version '0.2.0'
 
 repositories {
     mavenLocal()
@@ -37,7 +37,7 @@ shadowJar {
 }
 
 dependencies {
-    implementation 'org.yaml:snakeyaml:2.2'
+    implementation 'org.yaml:snakeyaml:2.4'
 }
 
 java {

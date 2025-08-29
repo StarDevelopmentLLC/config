@@ -139,7 +139,9 @@ public class YamlConfig extends FileConfig {
     private boolean hasSerializedTypeKey(MappingNode node) {
         for (NodeTuple nodeTuple : node.getValue()) {
             Node keyNode = nodeTuple.getKeyNode();
-            if (!(keyNode instanceof ScalarNode)) continue;
+            if (!(keyNode instanceof ScalarNode)) {
+                continue;
+            }
             String key = ((ScalarNode) keyNode).getValue();
             if (key.equals(ConfigSerialization.SERIALIZED_TYPE_KEY)) {
                 return true;

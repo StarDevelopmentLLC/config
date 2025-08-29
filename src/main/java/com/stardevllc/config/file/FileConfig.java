@@ -113,7 +113,7 @@ public abstract class FileConfig extends MemoryConfig {
         }
         
         public Options setHeader(List<String> value) {
-            this.header = (value == null) ? Collections.emptyList() : Collections.unmodifiableList(value);
+            this.header = value == null ? Collections.emptyList() : Collections.unmodifiableList(value);
             return this;
         }
         
@@ -122,7 +122,7 @@ public abstract class FileConfig extends MemoryConfig {
         }
         
         public Options setFooter(List<String> value) {
-            this.footer = (value == null) ? Collections.emptyList() : Collections.unmodifiableList(value);
+            this.footer = value == null ? Collections.emptyList() : Collections.unmodifiableList(value);
             return this;
         }
         

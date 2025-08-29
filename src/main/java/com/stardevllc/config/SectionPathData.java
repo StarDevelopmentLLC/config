@@ -28,7 +28,7 @@ public final class SectionPathData {
     }
     
     public void setComments(final List<String> comments) {
-        this.comments = (comments == null) ? Collections.emptyList() : Collections.unmodifiableList(comments);
+        this.comments = comments == null ? Collections.emptyList() : Collections.unmodifiableList(comments);
     }
     
     public List<String> getInlineComments() {
@@ -36,6 +36,6 @@ public final class SectionPathData {
     }
     
     public void setInlineComments(final List<String> inlineComments) {
-        this.inlineComments = (inlineComments == null) ? Collections.emptyList() : Collections.unmodifiableList(inlineComments);
+        this.inlineComments = inlineComments == null ? Collections.emptyList() : Collections.unmodifiableList(inlineComments);
     }
 }
