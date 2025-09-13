@@ -47,6 +47,8 @@ public abstract class FileConfig extends MemoryConfig {
     protected abstract String saveToString();
     
     public void load() {
+        save();
+        
         try {
             final FileInputStream stream = new FileInputStream(file);
             
