@@ -6,9 +6,11 @@ import com.stardevllc.config.MemoryConfig;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.List;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class FileConfig extends MemoryConfig {
     
@@ -22,6 +24,22 @@ public abstract class FileConfig extends MemoryConfig {
     public FileConfig(File file, Config defaults) {
         super(defaults);
         this.file = file;
+    }
+    
+    public void reload(boolean save) {
+        if (save) {
+            save();
+        }
+        
+        this.load();
+    }
+    
+    public void delete() {
+        try {
+            Files.delete(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public void save() {
@@ -47,9 +65,15 @@ public abstract class FileConfig extends MemoryConfig {
     protected abstract String saveToString();
     
     public void load() {
-        save();
-        
         try {
+            if (!Files.exists(file.toPath().getParent())) {
+                Files.createDirectories(file.toPath().getParent());
+            }
+            
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            
             final FileInputStream stream = new FileInputStream(file);
             
             load(new InputStreamReader(stream, StandardCharsets.UTF_8));
@@ -86,6 +110,16 @@ public abstract class FileConfig extends MemoryConfig {
         }
         
         return (Options) options;
+    }
+    
+    public void renameFile(String newName) {
+        Path parent = file.toPath().toAbsolutePath().getParent();
+        Path newPath = FileSystems.getDefault().getPath(parent.toString(), newName);
+        try {
+            Files.move(file.toPath(), newPath, REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public static class Options extends MemoryConfig.Options {
