@@ -23,10 +23,10 @@ publishing {
             }
         }
     }
-    
+
     publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
+        shadow(MavenPublication) {
+            from components.java
         }
     }
 }
@@ -44,10 +44,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.compileJava.dependsOn(clean)
 tasks.jar.finalizedBy(shadowJar)
 tasks.publishToMavenLocal.dependsOn(shadowJar)
 tasks.build.finalizedBy(publishToMavenLocal)
-tasks.build.finalizedBy(publish)
