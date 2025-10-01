@@ -32,7 +32,7 @@ publishing {
 }
 shadowJar {
     archiveClassifier.set('')
-    relocate('org.yaml', 'com.stardevllc.config.snakeyaml')
+    relocate('org.yaml.snakeyaml', 'com.stardevllc.config.snakeyaml')
     //destinationDirectory = file(System.getProperty("user.home") + File.separator + "Documents" + File.separator + "JarOutput")
 }
 
