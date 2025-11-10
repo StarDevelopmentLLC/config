@@ -1,11 +1,10 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '9.2.2'
 }
 
 group = 'com.stardevllc'
-version = '0.2.1'
+version = '0.3.0'
 
 repositories {
     mavenLocal()
@@ -25,19 +24,14 @@ publishing {
     }
 
     publications {
-        shadow(MavenPublication) {
-            from components.shadow
+        maven(MavenPublication) {
+            from components.java
         }
     }
 }
-shadowJar {
-    archiveClassifier.set('')
-    relocate('org.yaml.snakeyaml', 'com.stardevllc.config.snakeyaml')
-    //destinationDirectory = file(System.getProperty("user.home") + File.separator + "Documents" + File.separator + "JarOutput")
-}
 
 dependencies {
-    implementation 'org.yaml:snakeyaml:2.4'
+    compileOnly 'org.yaml:snakeyaml:2.4'
 }
 
 java {
@@ -50,6 +44,4 @@ java {
 }
 
 tasks.compileJava.dependsOn(clean)
-tasks.jar.finalizedBy(shadowJar)
-tasks.publishToMavenLocal.dependsOn(shadowJar)
 tasks.build.finalizedBy(publishToMavenLocal)
