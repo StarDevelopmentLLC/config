@@ -44,8 +44,15 @@ public abstract class FileConfig extends MemoryConfig {
     
     public void save() {
         try {
-            if (!Files.exists(file.toPath().getParent())) {
-                Files.createDirectories(file.toPath().getParent());
+            if (this.file == null) {
+                return;
+            }
+            
+            Path parent = this.file.toPath().getParent();
+            if (parent != null) {
+                if (!Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
             }
             
             if (!file.exists()) {
@@ -66,8 +73,15 @@ public abstract class FileConfig extends MemoryConfig {
     
     public void load() {
         try {
-            if (!Files.exists(file.toPath().getParent())) {
-                Files.createDirectories(file.toPath().getParent());
+            if (file == null) {
+                return;
+            }
+            
+            Path parent = file.toPath().getParent();
+            if (parent != null) {
+                if (!Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
             }
             
             if (!file.exists()) {
